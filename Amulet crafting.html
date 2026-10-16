@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UltimaThule Amulet crafting</title>
+    <style>
+        :root {
+            --bg: #0c0214; --panel: #160a22; --input: #211332; --purple: #462568; --neon: #e040fb;
+            --text: #fff; --text-m: #bda8d1; --blue: #00e5ff; --c-or: #ff9100; --c-gr: #b0bec5; --c-yl: #ffd600;
+        }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 460px; background: var(--panel); border-radius: 16px; padding: 20px; box-shadow: 0 0 20px rgba(224,64,251,0.25); border: 2px solid var(--neon); box-sizing: border-box; }
+        .main-title { text-align: center; font-size: 15px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 20px; color: #fff; text-shadow: 0 0 6px rgba(224,64,251,0.6), 0 0 12px rgba(224,64,251,0.3); border-bottom: 1px solid rgba(70,37,104,0.6); padding-bottom: 12px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--purple); padding-bottom: 10px; }
+        .tab-btn { flex: 1; padding: 10px; background: var(--input); border: 1px solid var(--purple); color: var(--text-m); font-weight: bold; cursor: pointer; border-radius: 8px; text-align: center; font-size: 13px; }
+        .tab-btn.active { color: #fff; background: #311b4e; border-color: var(--neon); box-shadow: 0 0 10px rgba(224,64,251,0.4); }
+        .tab-content { display: none; } .tab-content.active { display: block; }
+        .section-title { display: flex; align-items: center; font-size: 14px; font-weight: 600; margin: 15px 0 8px 0; gap: 6px; }
+        .row-group { display: flex; gap: 10px; margin-bottom: 12px; }
+        .input-wrapper { flex: 2; } .amount-wrapper { flex: 1; }
+        select, input[type="number"] { width: 100%; padding: 10px; background: var(--input); border: 2px solid var(--purple); border-radius: 8px; color: #fff; font-weight: bold; box-sizing: border-box; outline: none; transition: border-color 0.3s, box-shadow 0.3s; }
+        .info-card { background-color: rgba(12,2,20,0.6); border: 1px solid var(--purple); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+        .info-title { font-size: 13px; color: #fff; margin-bottom: 4px; }
+        .info-value { font-size: 24px; font-weight: 800; color: var(--blue); text-shadow: 0 0 8px rgba(0,229,255,0.3); }
+        .info-value.materials-total { color: var(--c-yl); text-shadow: 0 0 8px rgba(255,214,0,0.3); }
+        .info-value.error { color: #ff5252; font-size: 16px; text-shadow: none; }
+        .info-sub { font-size: 12px; color: var(--c-or); margin-top: 2px; font-weight: bold; }
+        .footer { text-align: center; font-size: 11px; color: var(--text-m); margin-top: 20px; line-height: 1.5; }
+        .footer-highlight { color: var(--c-yl); font-weight: bold; } .footer-project { color: #00e676; font-weight: bold; }
+        .opt-orange { color: var(--c-or); } .opt-grey { color: var(--c-gr); } .opt-yellow { color: var(--c-yl); } .opt-purple { color: var(--neon); }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="main-title">🧿 Калькулятор для Крафта амулетов.</div>
+    <div class="tabs">
+        <button class="tab-btn active" id="btn1" onclick="switchTab(1)">Амулеты из колец.</button>
+        <button class="tab-btn" id="btn2" onclick="switchTab(2)">Амулеты из амулетов.</button>
+    </div>
+
+    <!-- КАЛЬКУЛЯТОР 1 -->
+    <div id="calc1" class="tab-content active">
+        <div class="section-title">🔨 Делаю из этих колец:</div>
+        <div class="row-group">
+            <select id="c1-src" onchange="updateColor(this);calc1();">
+                <option value="0" class="opt-orange">Бронзовое кольцо ★★</option><option value="1" class="opt-orange">Бронзовое кольцо ★★★</option>
+                <option value="2" class="opt-grey">Серебряное кольцо ★</option><option value="3" class="opt-grey">Серебряное кольцо ★★</option><option value="4" class="opt-grey">Серебряное кольцо ★★★</option>
+                <option value="5" class="opt-yellow">Золотое кольцо ★</option><option value="6" class="opt-yellow">Золотое кольцо ★★</option><option value="7" class="opt-yellow">Золотое кольцо ★★★</option>
+                <option value="8" class="opt-purple">Алмазное кольцо ★</option>
+            </select>
+        </div>
+        <div class="row-group">
+            <div class="input-wrapper">
+                <div class="section-title">🎯 Хочу получить этот амулет:</div>
+                <select id="c1-tgt" onchange="updateColor(this);calc1();">
+                    <option value="0" class="opt-orange">Бронзовый амулет ★★</option><option value="1" class="opt-orange">Бронзовый амулет ★★★</option>
+                    <option value="2" class="opt-grey">Серебряный амулет ★</option><option value="3" class="opt-grey">Серебряный амулет ★★</option><option value="4" class="opt-grey">Серебряный амулет ★★★</option>
+                    <option value="5" class="opt-yellow">Золотой амулет ★</option><option value="6" class="opt-yellow">Золотой амулет ★★</option><option value="7" class="opt-yellow">Золотой амулет ★★★</option>
+                    <option value="8" class="opt-purple" selected>Алмазный амулет ★</option>
+                </select>
+            </div>
+            <div class="amount-wrapper"><div class="section-title">📦 Кол-во:</div><input type="number" id="c1-amt" value="1" min="1" oninput="calc1();"></div>
+        </div>
+        <div class="info-card">
+            <div class="info-title">Мне нужно будет ещё сделать:</div>
+            <div id="c1-res" class="info-value">0 шт.</div><div id="c1-res-name" class="info-sub">(Бронзовое кольцо ★★)</div>
+        </div>
+        <div class="info-card">
+            <div class="info-title">Лома III тира в 1 штуке данного кольца:</div>
+            <div id="c1-mat-s" class="info-value" style="color: var(--c-or);">10 шт.</div>
+        </div>
+        <div class="info-card">
+            <div class="info-title">На это понадобится лома III тира:</div>
+            <div id="c1-mat-t" class="info-value materials-total">0 шт.</div>
+        </div>
+    </div>
+
+    <!-- КАЛЬКУЛЯТОР 2 -->
+    <div id="calc2" class="tab-content">
+        <div class="section-title">🔨 Делаю из этих амулетов:</div>
+        <div class="row-group">
+            <select id="c2-src" onchange="updateColor(this);calc2();">
+                <option value="0" class="opt-orange">Бронзовый амулет ★★</option><option value="1" class="opt-orange">Бронзовый амулет ★★★</option>
+                <option value="2" class="opt-grey">Серебряный амулет ★</option><option value="3" class="opt-grey">Серебряный амулет ★★</option><option value="4" class="opt-grey">Серебряный амулет ★★★</option>
+                <option value="5" class="opt-yellow">Золотой амулет ★</option><option value="6" class="opt-yellow">Золотой амулет ★★</option><option value="7" class="opt-yellow">Золотой амулет ★★★</option>
+                <option value="8" class="opt-purple">Алмазный амулет ★</option>
+            </select>
+        </div>
+        <div class="row-group">
+            <div class="input-wrapper">
+                <div class="section-title">🎯 Хочу получить этот амулет:</div>
+                <select id="c2-tgt" onchange="updateColor(this);calc2();">
+                    <option value="0" class="opt-orange">Бронзовый амулет ★★</option><option value="1" class="opt-orange">Бронзовый амулет ★★★</option>
+                    <option value="2" class="opt-grey">Серебряный амулет ★</option><option value="3" class="opt-grey">Серебряный амулет ★★</option><option value="4" class="opt-grey">Серебряный амулет ★★★</option>
+                    <option value="5" class="opt-yellow">Золотой амулет ★</option><option value="6" class="opt-yellow">Золотой амулет ★★</option><option value="7" class="opt-yellow">Золотой амулет ★★★</option>
+                    <option value="8" class="opt-purple" selected>Алмазный амулет ★</option>
+                </select>
+            </div>
+            <div class="amount-wrapper"><div class="section-title">📦 Кол-во:</div><input type="number" id="c2-amt" value="1" min="1" oninput="calc2();"></div>
+        </div>
+        <div class="info-card">
+            <div class="info-title">Мне нужно будет ещё сделать:</div>
+            <div id="c2-res" class="info-value">0 шт.</div><div id="c2-res-name" class="info-sub">(Бронзовый амулет ★★)</div>
+        </div>
+        <div class="info-card">
+            <div class="info-title">Лома III тира в 1 штуке данного амулета:</div>
+            <div id="c2-mat-s" class="info-value" style="color: var(--c-or);">10 шт.</div>
+        </div>
+        <div class="info-card">
+            <div class="info-title">На это понадобится лома III тира:</div>
+            <div id="c2-mat-t" class="info-value materials-total">0 шт.</div>
+        </div>
+    </div>
+    <div class="footer">Создано кланом: <span class="footer-highlight">Ultima Thule</span> © 2026г.<br>Для проекта: <span class="footer-project">Dead Impact 🧟</span></div>
+</div>
+<script>
+    function switchTab(idx) {
+        document.getElementById('btn1').classList.toggle('active', idx === 1);
+        document.getElementById('btn2').classList.toggle('active', idx === 2);
+        document.getElementById('calc1').classList.toggle('active', idx === 1);
+        document.getElementById('calc2').classList.toggle('active', idx === 2);
+    }
+    function updateColor(el) {
+        if (!el) return; const cl = el.options[el.selectedIndex].className; let c = '#462568';
+        if (cl.includes('orange')) c = '#ff9100'; if (cl.includes('grey')) c = '#b0bec5';
+        if (cl.includes('yellow')) c = '#ffd600'; if (cl.includes('purple')) c = '#e040fb';
+        el.style.borderColor = c; el.style.boxShadow = `0 0 10px ${c}55`;
+    }
+    function fmt(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+
+    function calc1() {
+        const src = parseInt(document.getElementById('c1-src').value), tgt = parseInt(document.getElementById('c1-tgt').value), amt = parseInt(document.getElementById('c1-amt').value) || 0;
+        const res = document.getElementById('c1-res'), sMat = document.getElementById('c1-mat-s'), tMat = document.getElementById('c1-mat-t'), sub = document.getElementById('c1-res-name'), srcSelect = document.getElementById('c1-src');
+        sub.innerText = `(${srcSelect.options[srcSelect.selectedIndex].text})`;
+        const sVal = 10 * Math.pow(5, src); sMat.innerText = fmt(sVal) + " шт.";
+        if (src > tgt) { res.innerText = "Будь внимательнее! Исходное кольцо выше рангом, чем желаемый амулет!"; res.classList.add('error'); tMat.innerText = "0 шт."; return; }
+        res.classList.remove('error');
+        const finalItems = Math.pow(5, tgt - src) * 5 * amt;
+        res.innerText = fmt(finalItems) + " шт."; tMat.innerText = fmt(finalItems * sVal) + " шт.";
+    }
+
+    function calc2() {
+        const src = parseInt(document.getElementById('c2-src').value), tgt = parseInt(document.getElementById('c2-tgt').value), amt = parseInt(document.getElementById('c2-amt').value) || 0;
+        const res = document.getElementById('c2-res'), sMat = document.getElementById('c2-mat-s'), tMat = document.getElementById('c2-mat-t'), sub = document.getElementById('c2-res-name'), srcSelect = document.getElementById('c2-src');
+        sub.innerText = `(${srcSelect.options[srcSelect.selectedIndex].text})`;
+        const sVal = 10 * Math.pow(3, src); sMat.innerText = fmt(sVal) + " шт.";
+        if (src >= tgt) { res.innerText = "Будь внимательнее! Исходный амулет выше рангом, чем желаемый!"; res.classList.add('error'); tMat.innerText = "0 шт."; return; }
+        res.classList.remove('error');
+        const finalItems = Math.pow(3, tgt - src) * amt;
+        res.innerText = fmt(finalItems) + " шт."; tMat.innerText = fmt(finalItems * sVal) + " шт.";
+    }
+
+    window.onload = function() {
+        ['c1-src', 'c1-tgt', 'c2-src', 'c2-tgt'].forEach(id => updateColor(document.getElementById(id)));
+        calc1(); calc2();
+    };
+</script>
+</body>
+</html>
