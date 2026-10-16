@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UltimaTule крафт</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0f0c1b; 
+            color: #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+        }
+        .calculator {
+            background: #181528; 
+            padding: 25px;
+            border-radius: 12px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 2px solid #b026ff; 
+            box-shadow: 0 0 10px #b026ff, 0 0 25px #b026ff, inset 0 0 15px rgba(176, 38, 255, 0.2); 
+        }
+        h2 {
+            text-align: center;
+            margin-top: 0;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            text-shadow: 0 0 8px rgba(255,255,255,0.3);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 14px;
+            color: #ccc;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #443b68;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 15px; 
+            font-weight: bold;
+            background-color: #221d3a;
+            color: #fff;
+            transition: all 0.2s ease;
+        }
+        input:disabled {
+            background-color: #1b172a;
+            cursor: not-allowed;
+            border-color: #2d2647;
+            color: #666;
+        }
+        .row {
+            display: flex;
+            gap: 12px;
+        }
+        .row .form-group:nth-child(1) { flex: 1.8; }
+        .row .form-group:nth-child(2) { flex: 0.8; }
+        
+        .row-inventory {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            margin-bottom: 10px;
+        }
+        .row-inventory:last-child { margin-bottom: 0; }
+        .row-inventory .select-part { flex: 1.8; }
+        .row-inventory .input-part { flex: 0.8; }
+        
+        .c-none { color: #aaa; background-color: #221d3a; }
+        .c-bronze { color: #ff9e4f; background-color: #2e2016; }
+        .c-grey { color: #cccccc; background-color: #2b2d30; }
+        .c-yellow { color: #ffee55; background-color: #333014; }
+        .c-purple { color: #df70ff; background-color: #2b1736; }
+
+        .txt-bronze { color: #ff9e4f; font-weight: bold; }
+        .txt-grey { color: #cccccc; font-weight: bold; }
+        .txt-yellow { color: #ffee55; font-weight: bold; }
+        .txt-purple { color: #e68aff; font-weight: bold; }
+
+        .result {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .result-item {
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #1a0f2e;
+            border: 1px solid #332a54;
+            transition: all 0.3s ease;
+        }
+        .highlight-blue {
+            color: #38b6ff;
+            font-size: 24px;
+            font-weight: 900;
+            display: block;
+            margin-top: 3px;
+            margin-bottom: 2px;
+            line-height: 1.2;
+            text-shadow: 0 0 8px rgba(56,182,255,0.5);
+        }
+        .sub-title { display: block; font-size: 14px; color: #fff; font-weight: bold; }
+        .sub-text-bold { display: block; font-size: 14px; margin-top: 2px; }
+
+        .error { background-color: #3a1c22 !important; border: 1px solid #ff4a5a !important; color: #ff4a5a; padding: 15px; border-radius: 8px; }
+        .success { background-color: #173520 !important; border: 1px solid #2ee560 !important; color: #2ee560; padding: 15px; border-radius: 8px; }
+        .signature { margin-top: 15px; text-align: right; font-size: 11px; color: #bfaad8; font-weight: bold; padding-right: 5px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .signature b { color: #fffa9e; text-shadow: 0 0 6px rgba(255, 250, 158, 0.7); font-weight: 900; padding: 0 2px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="calculator">
+        <h2>💍 Калькулятор для крафта колец.</h2>
+        
+        <div class="form-group">
+            <label for="current">🔨 Делаю из этих колец:</label>
+            <select id="current" onchange="applySelectColor(this); calculate();" class="c-bronze">
+                <option value="0" class="c-bronze">Бронзовое ★★</option>
+                <option value="1" class="c-bronze">Бронзовое ★★★</option>
+                <option value="2" class="c-grey">Серебряное ★</option>
+                <option value="3" class="c-grey">Серебряное ★★</option>
+                <option value="4" class="c-grey">Серебряное ★★★</option>
+                <option value="5" class="c-yellow">Золотое ★</option>
+                <option value="6" class="c-yellow">Золотое ★★</option>
+                <option value="7" class="c-yellow">Золотое ★★★</option>
+                <option value="8" class="c-purple">Алмазное ★</option>
+            </select>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <label for="target">🎯 Хочу получить это кольцо:</label>
+                <select id="target" onchange="applySelectColor(this); calculate();" class="c-purple">
+                    <option value="0" class="c-bronze">Бронзовое ★★</option>
+                    <option value="1" class="c-bronze">Бронзовое ★★★</option>
+                    <option value="2" class="c-grey">Серебряное ★</option>
+                    <option value="3" class="c-grey">Серебряное ★★</option>
+                    <option value="4" class="c-grey">Серебряное ★★★</option>
+                    <option value="5" class="c-yellow">Золотое ★</option>
+                    <option value="6" class="c-yellow">Золотое ★★</option>
+                    <option value="7" class="c-yellow">Золотое ★★★</option>
+                    <option value="8" class="c-purple" selected>Алмазное ★</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="count">📦 Кол-во:</label>
+                <input type="number" id="count" value="1" min="1" oninput="calculate();">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>🎒 У меня уже есть некоторые кольца в инвентаре:</label>
+            
+            <div class="row-inventory">
+                <div class="select-part">
+                    <select id="inventorySelect" onchange="applySelectColor(this); toggleInventoryInput('inventorySelect', 'inventoryCount'); calculate();" class="c-none">
+                        <option value="none" class="c-none" selected>Ничего нет! Фиаско!</option>
+                        <option value="0" class="c-bronze">Бронзовое ★★</option>
+                        <option value="1" class="c-bronze">Бронзовое ★★★</option>
+                        <option value="2" class="c-grey">Серебряное ★</option>
+                        <option value="3" class="c-grey">Серебряное ★★</option>
+                        <option value="4" class="c-grey">Серебряное ★★★</option>
+                        <option value="5" class="c-yellow">Золотое ★</option>
+                        <option value="6" class="c-yellow">Золотое ★★</option>
+                        <option value="7" class="c-yellow">Золотое ★★★</option>
+                        <option value="8" class="c-purple">Алмазное ★</option>
+                    </select>
+                </div>
+                <div class="input-part">
+                    <input type="number" id="inventoryCount" value="0" min="0" oninput="calculate();" placeholder="Кол-во" disabled>
+                </div>
+            </div>
+
+            <div class="row-inventory">
+                <div class="select-part">
+                    <select id="inventorySelect2" onchange="applySelectColor(this); toggleInventoryInput('inventorySelect2', 'inventoryCount2'); calculate();" class="c-none">
+                        <option value="none" class="c-none" selected>Ничего нет! Фиаско!</option>
+                        <option value="0" class="c-bronze">Бронзовое ★★</option>
+                        <option value="1" class="c-bronze">Бронзовое ★★★</option>
+                        <option value="2" class="c-grey">Серебряное ★</option>
+                        <option value="3" class="c-grey">Серебряное ★★</option>
+                        <option value="4" class="c-grey">Серебряное ★★★</option>
+                        <option value="5" class="c-yellow">Золотое ★</option>
+                        <option value="6" class="c-yellow">Золотое ★★</option>
+                        <option value="7" class="c-yellow">Золотое ★★★</option>
+                        <option value="8" class="c-purple">Алмазное ★</option>
+                    </select>
+                </div>
+                <div class="input-part">
+                    <input type="number" id="inventoryCount2" value="0" min="0" oninput="calculate();" placeholder="Кол-во" disabled>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
+            <input type="checkbox" id="allowDisassemble" checked onchange="calculate();" style="width: auto; cursor: pointer;">
+            <label for="allowDisassemble" style="margin-bottom: 0; cursor: pointer; user-select: none;">🤔 Прошу учесть, что мои кольца из инвентаря можно разобрать на 2 кольца уровнем ниже (для этого нужно поставить галочку).</label>
+        </div>
+
+        <div id="resultBlock" class="result">
+            <div class="result-item">Выберите параметры для расчета</div>
+        </div>
+        
+        <div class="signature">Создано кланом: <b>Ultima Thule</b> © 2026г.</div>
+<div class="signature" style="margin-top: 4px; color: #5eff8b; text-shadow: 0 0 6px rgba(94, 255, 139, 0.6); font-size: 11px;">Для проекта: Dead Impact 🧟‍♂️</div>
+
+</div>
+<script>
+function applySelectColor(selectElement) {
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    selectElement.className = ''; 
+    
+    if (selectedOption.classList.contains('c-none')) selectElement.classList.add('c-none');
+    if (selectedOption.classList.contains('c-bronze')) selectElement.classList.add('c-bronze');
+    if (selectedOption.classList.contains('c-grey')) selectElement.classList.add('c-grey');
+    if (selectedOption.classList.contains('c-yellow')) selectElement.classList.add('c-yellow');
+    if (selectedOption.classList.contains('c-purple')) selectElement.classList.add('c-purple');
+}
+
+function toggleInventoryInput(selectId, inputId) {
+    const select = document.getElementById(selectId);
+    const input = document.getElementById(inputId);
+    
+    if (select.value === "none") {
+        input.value = 0;
+        input.disabled = true;
+    } else {
+        input.disabled = false;
+    }
+}
+</script>
+<script>
+function calculate() {
+    const currentIdx = parseInt(document.getElementById('current').value);
+    const targetIdx = parseInt(document.getElementById('target').value);
+    const count = parseInt(document.getElementById('count').value) || 0;
+    
+    const invValue1 = document.getElementById('inventorySelect').value;
+    const invCount1 = parseInt(document.getElementById('inventoryCount').value) || 0;
+    const invValue2 = document.getElementById('inventorySelect2').value;
+    const invCount2 = parseInt(document.getElementById('inventoryCount2').value) || 0;
+    
+    const allowDisassemble = document.getElementById('allowDisassemble').checked;
+    
+    const resultBlock = document.getElementById('resultBlock');
+
+    if (currentIdx > targetIdx) {
+        resultBlock.innerHTML = "<div class='error'>❌ Будь внимательнее: Исходное кольцо выше рангом, чем желаемое!</div>";
+        return;
+    }
+
+    const materialsForOneTarget = 10 * Math.pow(3, targetIdx);
+    const totalMaterialsRequired = materialsForOneTarget * count;
+
+    function getInventoryMaterials(invValue, invCount) {
+        if (invValue === "none" || invCount <= 0) return 0;
+        const invIdx = parseInt(invValue);
+        
+        if (invIdx <= targetIdx) {
+            return (10 * Math.pow(3, invIdx)) * invCount;
+        } else {
+            if (allowDisassemble) {
+                let lossMultiplier = Math.pow(2, invIdx - targetIdx); 
+                let baseMaterialsOfTarget = 10 * Math.pow(3, targetIdx); 
+                return baseMaterialsOfTarget * lossMultiplier * invCount;
+            } else {
+                return 0;
+            }
+        }
+    }
+
+    let totalMaterialsInInventory = getInventoryMaterials(invValue1, invCount1) + getInventoryMaterials(invValue2, invCount2);
+    const materialDeficit = Math.max(0, totalMaterialsRequired - totalMaterialsInInventory);
+
+    if (materialDeficit === 0) {
+        resultBlock.innerHTML = "<div class='success'>✅ Этих ресурсов достаточно для крафта!</div>";
+        return;
+    }
+
+    const materialsInOneInputRing = 10 * Math.pow(3, currentIdx);
+    const finalNeededInputRings = Math.ceil(materialDeficit / materialsInOneInputRing);
+    const finalMaterialsOutput = finalNeededInputRings * materialsInOneInputRing;
+
+    const currentOption = document.getElementById('current').options[currentIdx];
+    const currentRingName = currentOption.text;
+    
+    let textClass = "txt-grey";
+    if (currentOption.classList.contains('c-bronze')) textClass = "txt-bronze";
+    if (currentOption.classList.contains('c-yellow')) textClass = "txt-yellow";
+    if (currentOption.classList.contains('c-purple')) textClass = "txt-purple";
+    
+    resultBlock.innerHTML = `
+        <div class="result-item">
+            <span class="sub-title">Мне нужно будет ещё сделать:</span>
+            <span class="highlight-blue">${finalNeededInputRings.toLocaleString('ru-RU')} шт.</span>
+            <span class="sub-text-bold ${textClass}">(${currentRingName})</span>
+        </div>
+        
+        <div class="result-item">
+            <span class="sub-title">Лома III тира в 1 штуке данного кольца:</span>
+            <span class="highlight-blue">${materialsInOneInputRing.toLocaleString('ru-RU')} шт.</span>
+        </div>
+        
+        <div class="result-item">
+            <span class="sub-title">На это понадобится лома III тира:</span>
+            <span class="highlight-blue">${finalMaterialsOutput.toLocaleString('ru-RU')} шт.</span>
+        </div>
+    `;
+}
+
+window.onload = function() {
+    calculate();
+};
+</script>
+</body>
+</html>
